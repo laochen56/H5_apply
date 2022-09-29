@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞机大战</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <style>
+        #container {
+            width: 320px;
+            height: 568px;
+            background-image: url(img/background.png);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        #hero {
+            width: 66px;
+            height: 82px;
+            background-image: url(img/herofly.png);
+            position: absolute;
+            left: 42%;
+            top: 486px;
+        }
+
+        .enemy {
+            width: 38px;
+            height: 34px;
+            background-image: url(img/enemy1.png);
+            position: absolute;
+            top: -34px;
+        }
+
+        .bullet {
+            width: 6px;
+            height: 14px;
+            background-image: url(img/bullet1.png);
+            position: absolute;
+        }
+
+        #score {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+        }
+
+        #start,
+        #end {
+            width: 300px;
+            background-color: lightgray;
+            position: absolute;
+            top: 160px;
+            left: 50%;
+            margin-left: -150px;
+            padding: 2rem 0;
+            z-index: 1000;
+        }
+
+        #start .input {
+            width: 80%;
+            height: 2rem;
+            line-height: 2rem;
+            margin-left: 10%;
+            border-bottom: 1px solid black;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+
+        .but {
+            width: 80%;
+            height: 2rem;
+            line-height: 2rem;
+            text-align: center;
+            border: 1px solid black;
+            margin: 2rem auto 0;
+        }
+
+        #end {
+            display: none;
+        }
+
+        #end #showScore {
+            line-height: 1.6rem;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        ul {
+            margin: 1.2rem 2rem;
+        }
+
+        ul li {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .hard {
+            margin-top: 10%;
+            width: 80%;
+            height: 2rem;
+            line-height: 2rem;
+            text-indent: 2em;
+            border: 1px solid black;
+            margin: 2rem auto 0;
+            display: flex;
+        }
+
+        .hard span {
+            flex: 1;
+            margin: 5px;
+            border-radius: 48%;
+            line-height: 20px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="start">
+            <div class="input">
+                <input id="nick" type="text" placeholder="请输入昵称">
+            </div>
+            <div id="startBut" class="but">开始</div>
+            <div id="root">
+                <div class="but">当前难度为：<span id="hards">25</span></div>
+                <div class="hard">难度:<span id="add">+</span><span id="sub">-</span></div>
+            </div>
+        </div>
+        <div id="end">
+            <p id="showScore">100</p>
+            <ul>
+                <!-- <li>
+                    <span>1.</span>
+                    <span>leo</span>
+                    <span>96</span>
+                </li> -->
+            </ul>
+            <div id="againBut" class="but">再来一次</div>
+        </div>
+        <p id="score">得分：0</p>
+        <div id="hero"></div>
+        <div id="enemy">
+            <!-- 只有管理权限，没有定位权限 -->
+            <!-- <div class="enemy"></div> -->
+        </div>
+        <div id="bullet">
+            <!-- 只有管理权限，没有定位权限 -->
+            <!-- <div class="bullet"></div> -->
+        </div>
+    </div>
+</body>
+<script src="js/public.js"></script>
+<script>
+    // 标签
+    var dContainer = document.getElementById("container");
+    // 全局变量
+    var sw = 320;
+    var sh = 568;
+    var timer = null;
+
+    if (isPhone()) {
+        Phonew = document.documentElement.clientWidth + 'px';
+        Phoneh = document.documentElement.clientHeight + 'px';
+        dContainer.style.width = Phonew;
+        dContainer.style.height = Phoneh;
+        sw = document.documentElement.offsetWidth;
+        sh = document.documentElement.offsetHeight;
+    }
+
+</script>
+<script src="js/bg.js"></script>
+<script src="js/hero.js"></script>
+<script src="js/enemy.js"></script>
+<script src="js/bullet.js"></script>
+<script src="js/check.js"></script>
+<script>
+    //获取标签
+    var dStart = document.getElementById("start");
+    var dEnd = document.getElementById("end");
+    var startBut = document.getElementById("startBut");
+    var againBut = document.getElementById("againBut");
+    var iptNick = document.getElementById("nick");
+    var pShowScore = document.getElementById("showScore");
+    var ul = document.querySelector("ul");
+    var add = document.getElementById("add");
+    var sub = document.getElementById("sub");
+    var hards = document.getElementById("hards");
+    // 开始游戏（开启计时）
+    var sotime = 25
+    function start() {
+        timer = setInterval(function () {
+            // 2.1 背景滚动
+            bgMove();
+            // 2.2 hero的操作  pc键盘
+            heroMove();
+            // 2.3 敌机的创建与运动
+            enemyMove();
+            // 2.4 子弹的创建与运动
+            bulletMove();
+            // 2.5 碰撞检测
+            check();
+        }, sotime)
+    }
+
+    //游戏结束
+    function gameover() {
+        //停止计时
+        clearInterval(timer);
+        //修改本次得分
+        pShowScore.innerHTML = score;
+        // 设置排行榜
+        setPHB();
+        // 显示结束面板
+        dEnd.style.display = "block";
+    }
+
+    //再来一次
+    function again() {
+        dEnd.style.display = "none";
+        dStart.style.display = "block";
+    }
+
+    function setPHB() {
+        if (!localStorage.phb) {
+            localStorage.phb = "[]";
+        }
+        var arr = JSON.parse(localStorage.phb);
+        var isExit = -1; //昵称是否存在  -1表示不存在
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].nick === iptNick.value) {
+                // 存在
+                isExit = i;
+                break;
+            }
+        }
+        if (isExit != -1) {
+            // 更新数据
+            arr[isExit].score = score;
+        } else {
+            //将新数据放入数组
+            arr.push({
+                nick: iptNick.value,
+                score: score
+            });
+        }
+        // 排序
+        arr = arr.sort(function (a, b) {
+            return b.score - a.score;
+        })
+        //设置ul的内容
+        setUl(arr);
+
+        //将新数据存入到本地
+        localStorage.phb = JSON.stringify(arr);
+    }
+    function setUl(arr) {
+        ul.innerHTML = "";
+        for (var i = 0; i < arr.length; i++) {
+            if (i > 2) {
+                break;
+            }
+            var li = document.createElement("li");
+            li.innerHTML = `
+                    <span>${i + 1}.</span>
+                    <span>${arr[i].nick}</span>
+                    <span>${arr[i].score}</span>
+            `;
+            ul.appendChild(li);
+        }
+    }
+
+    startBut.onclick = function () {
+        if (iptNick.value === "") {
+            alert("昵称不能为空");
+            return;
+        }
+        dStart.style.display = 'none';
+        start();
+    }
+
+    againBut.onclick = function () {
+        again();
+        //数据还原
+        dis = 0;
+        count = 0;
+        dBullet.innerHTML = "";
+        score = 0;
+        pScore.innerHTML = "得分：0";
+        dEnemy.innerHTML = "";
+        setHeroPosition();
+    }
+    add.onclick = function () {
+        sotime = sotime - 1;
+        hards.innerHTML = 50-sotime;
+    }
+    sub.onclick = function () {
+        sotime = sotime + 1;
+        hards.innerHTML = 50-sotime;
+    }
+
+    // phb = [{
+    //     nick: "leo",
+    //     score: "100"
+    // }, {
+    //     nick: "li",
+    //     score: "80"
+    // }]
+</script>
+</html>

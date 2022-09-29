@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,minimal-ui">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+		<link rel="stylesheet" type="text/css" href="./css/view.css"/>
+		<link href="./css/font-awesome.css" rel="stylesheet">
+		<title>中国象棋</title>
+		<style>
+			html,
+			body {
+				margin: 0;
+				padding: 0;
+				background: black;
+				overflow: hidden;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				-webkit-user-select: none;
+				-webkit-transform: translate3d(0, 0, 0);
+				-moz-transform: translate3d(0, 0, 0);
+				-ms-transform: translate3d(0, 0, 0);
+				-o-transform: translate3d(0, 0, 0);
+				transform: translate3d(0, 0, 0);
+				-webkit-backface-visibility: hidden;
+				-moz-backface-visibility: hidden;
+				-ms-backface-visibility: hidden;
+				backface-visibility: hidden;
+			}
+			
+			#box {
+				font-family: 'xingkai';
+				width: 100vw;
+				height: 100vh;
+				margin: 0;
+				padding: 0;
+				position: relative;
+				top: 0;
+				left: 0;
+				text-align: center;
+				font-size: 2.5vmin;
+			}
+			
+			#map {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				padding: 0px;
+				margin: 0;
+				border: 0.06rem solid darkgoldenrod;
+				background: rgba(249, 216, 162, 1);
+			}
+		</style>
+		<script>
+			(function() {
+				//rem 与屏幕/字体大小比例计算
+				var userFontSize = parseFloat(getComputedStyle(document.documentElement, false)['fontSize']);
+				var ratio = 16 / userFontSize;
+				var fontSize = (innerWidth / 1536 * 0.625) * 10 * ratio;
+				document.documentElement.style.fontSize = fontSize + "rem";
+			})();
+		</script>
+		<script src="js/socket.io.min.js"></script>
+	</head>
+
+	<body>
+		<div id="box">
+			<canvas id="map"></canvas>
+			<audio src="audio/MOVE.WAV" hidden="hidden" id="audioClick"></audio>
+			<audio src="audio/go.wav" hidden="hidden" id="audioGo"></audio>
+			<audio src="audio/kill.wav" hidden="hidden" id="audioKill"></audio>
+			<audio src="audio/dong.wav" hidden="hidden" id="audioEat"></audio>
+			<div id="gameMenu" style="display: none;">游戏菜单</div>
+			<div id="Chessboard">
+				棋谱
+			</div>
+		</div>
+		<script type="text/javascript" src="js/map3.js"></script>
+	</body>
+
+</html>
