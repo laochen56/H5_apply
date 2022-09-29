@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记账本</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 62.5%;
+        }
+
+        body {
+            background-color: #f1f1f1;
+        }
+
+        .container {
+            width: 400px;
+            padding: 50px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container>p:nth-of-type(2) {
+            line-height: 4rem;
+            font-size: 3.2rem;
+        }
+
+        section {
+            height: 6rem;
+            padding: 1rem;
+            background-color: #fff;
+            margin-top: 2rem;
+            box-shadow: 1px 1px 3px lightgray;
+        }
+
+        section .item {
+            width: 50%;
+            height: 100%;
+            float: left;
+            border-right: 1px solid lightgray;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: center;
+        }
+
+        section .zhichu {
+            border: 0;
+        }
+
+        section .item p {
+            width: 100%;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 900;
+        }
+
+        h2 {
+            margin-top: 1.5rem;
+            line-height: 4rem;
+            font-size: 1.8rem;
+            border-bottom: 1px solid lightgray;
+        }
+
+        li {
+            height: 3rem;
+            background-color: #fff;
+            margin: 1rem auto;
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        li span {
+            float: left;
+            width: 46%;
+            height: 3rem;
+            line-height: 3rem;
+        }
+
+        li .name {
+            margin-left: 2%;
+        }
+
+        li .money {
+            text-align: right;
+        }
+
+        li .del {
+            width: 2rem;
+            height: 2rem;
+            line-height: 2rem;
+            text-align: center;
+            color: #fff;
+            background-color: tomato;
+            font-size: 1.2rem;
+            position: absolute;
+            left: -2rem;
+            top: .5rem;
+            display: none;
+        }
+
+        li:hover .del {
+            display: block;
+        }
+
+        .show {
+            line-height: 3.6rem;
+            font-size: 1.6rem;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            height: 3rem;
+            line-height: 3rem;
+            font-size: 1.2rem;
+            text-indent: 2.4rem;
+        }
+
+        #add {
+            height: 3rem;
+            line-height: 3rem;
+            font-size: 1.4rem;
+            color: #fff;
+            background-color: plum;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        #add:hover {
+            cursor: pointer;
+        }
+
+        .alert {
+            width: 100%;
+            font-size: 1.8rem;
+            color: #fff;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: all .5s;
+            overflow: hidden;
+            line-height: 4rem;
+        }
+
+        #error {
+            background-color: tomato;
+            box-shadow: 0 0 5px tomato;
+            height: 0;
+        }
+
+        #success {
+            background-color: skyblue;
+            box-shadow: 0 0 5px skyblue;
+            height: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>记账本</h1>
+        <p style="margin-top: 2rem;">您的余额</p>
+        <p>￥<span id="yue">0</span></p>
+        <section>
+            <div class="item shouru">
+                <p>收入</p>
+                <p style="color: skyblue">￥<span id="shouru">0.00</span></p>
+            </div>
+            <div class="item zhichu">
+                <p>支出</p>
+                <p style="color: tomato">￥<span id="zhichu">0.00</span></p>
+            </div>
+        </section>
+        <h2>历史记录</h2>
+        <ul>
+            <!-- <li>
+                <span class="name">投资</span>
+                <span class="money">-1000</span>
+                <span class="del">x</span>
+            </li> -->
+        </ul>
+        <h2>添加新交易</h2>
+        <p class="show">交易名称</p>
+        <input id="name" type="text" placeholder="请输入名称">
+        <p class="show">金额（支出-负数，收入+整数）</p>
+        <input id="money" type="text" placeholder="请输入金额">
+        <div id="add">添加新交易</div>
+
+        <p id="error" class="alert">请输入正确的信息!</p>
+        <p id="success" class="alert">信息添加成功!</p>
+    </div>
+    <script>
+        //关于本地存储的构造函数
+        /*localStorage.record = [
+            {
+        
+            },
+            {
+        
+            },
+            {
+        
+            }
+        ]*/
+        function Record() {
+            if (!localStorage.record) {
+                localStorage.record = '[]';
+            }
+        }
+
+        //获取缓存的记录内容
+        Record.prototype.getRecords = function () {
+            return JSON.parse(localStorage.record);
+        }
+
+        //添加新数据
+        Record.prototype.addData = function (data) {
+            // 拿到数组   添加数据   更新缓存
+            var arr = this.getRecords();
+            arr.push(data);
+            localStorage.record = JSON.stringify(arr);
+        }
+
+        //清除所有数据
+        Record.prototype.removeAllData = function () {
+            localStorage.clear();
+        }
+
+        // 删掉指定数据
+        Record.prototype.delData = function (index) {
+            var arr = this.getRecords();
+            arr.splice(index, 1);
+            localStorage.record = JSON.stringify(arr);
+        }
+
+        //计算总收入
+        Record.prototype.shouru = function () {
+            var total = 0;
+            var arr = this.getRecords();
+            arr.forEach(function (data) {
+                if (data.type === "+") {
+                    total += data.money / 1;
+                }
+            })
+            return total;
+        }
+
+
+        //计算总支出
+        Record.prototype.zhichu = function () {
+            var total = 0;
+            var arr = this.getRecords();
+            arr.forEach(function (data) {
+                if (data.type === "-") {
+                    total += data.money / 1;
+                }
+            })
+            return total;
+        }
+    </script>
+    <script>
+
+        //1.根据缓存显示历史记录
+        //创建record对象
+        var record = new Record();
+        //2.获取历史记录，并添加对应的li
+        if (record.getRecords != []) {
+            for (let i = 0; i < record.getRecords().length; i++) {
+                addLi(record.getRecords()[i]);
+            }
+        }
+        setMoney();
+        var namein = document.querySelector('#name');//姓名框
+        var moneyin = document.querySelector('#money');//金额框
+        var add = document.querySelector('#add');//添加交易
+        //记录每一笔钱
+        add.addEventListener('click', function () {
+            //1.判断输入框的内容
+            if (!isAlert()) {
+                errorAlert();
+                return;
+            }
+            //2.创建li,填充li,添加li
+            //把我们输进去的数据存储在一个集合里
+            var data = {
+                name: namein.value,
+                type: moneyin.value.slice(0, 1),
+                money: moneyin.value.slice(1)
+            }
+            addLi(data);
+            record.addData(data);
+            setMoney();
+            namein.value = '';
+            moneyin.value = '';
+            successAlert();
+        });
+        function addLi(data) {
+            var ul = document.querySelector('ul');//获取历史记录
+            var str = `<li style="border-right:4px solid ${data.type === "+" ? "skyblue" : "tomato"}">
+                <span class="name">${data.name}</span>
+                <span class="money" style="color:${data.type === "+" ? "skyblue" : "tomato"}">${data.type + data.money}</span>
+                <span class="del">x</span>
+            </li>`;
+            ul.insertAdjacentHTML('beforeend', str);
+            var li = ul.children[ul.children.length - 1];
+            li.children[li.children.length - 1].addEventListener('click', function () {
+                for (let i = 0; i < record.getRecords().length; i++) {
+                    if (li.children[0].innerHTML == record.getRecords()[i].name) {
+                        record.delData(i);
+                    }
+                }
+                setMoney();
+                ul.removeChild(li);
+            })
+        }
+        //输出框内容不合理就提醒用户
+        //加减开头，要么就是纯整数，小数的话小数点在整数后且最多两位
+        //如果输入框内容不合理，就弹窗提醒用户
+        function isAlert() {
+            var reg = /^[\+\-](\d+|\d+\.\d{1,2})$/;
+            if (namein.value === "" || reg.test(moneyin.value) === false) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        function setMoney() {
+            var shouru = document.querySelector('#shouru');
+            var zhichu = document.querySelector('#zhichu');
+            var yue = document.querySelector('#yue');
+            shouru.innerHTML = record.shouru();
+            zhichu.innerHTML = record.zhichu();
+            yue.innerHTML = record.shouru() - record.zhichu();
+        }
+        function huifu() {
+            var error = document.querySelector('#error');
+            error.style.height = '0';
+        }
+        function errorAlert() {
+            var error = document.querySelector('#error');
+            error.style.height = '4rem';
+            setTimeout(function () {
+                error.style.height = '0';
+            }, 800);
+        }
+        function successAlert() {
+            var success = document.querySelector('#success');
+            success.style.height = '4rem';
+            setTimeout(function () {
+                success.style.height = '0';
+            }, 800);
+        }
+    </script>
+</body>
+
+</html>
